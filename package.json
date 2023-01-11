@@ -1,0 +1,16 @@
+{
+  "name": "local_to_mongodb",
+  "version": "1.0.0",
+  "description": "Uploading local data to MongoDB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lawyerd",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.2.2",
+    "mongoose": "^6.8.3",
+    "xml2js": "^0.4.23"
+  }
+}
