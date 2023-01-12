@@ -1,56 +1,19 @@
-const axios = require('axios')
-const xml2js = require('xml2js')
-const {storeData} = require('./storeData')
-const URL = 'http://192.168.10.120:5000/current'
+const express = require("express");
+const http = require("http");
+const bodyParser = require("body-parser");
+const app = express();
 
-async function getData(){
-const response = await axios({
-    url: URL, 
-    method: 'get',
-    headers: {
-        'Accept': 'application/xml'
-    }
-  });
+app.use(bodyParser.urlencoded({ extended: false }));
 
-return (response.data)
-}
+const server = http.createServer(app);
+const PORT = 8080;
 
-async function parseXML(xml) {
-    try {
-        const result = await new Promise((resolve, reject) => {
-            xml2js.parseString(xml, (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
-        delete result.MTConnectStreams['$']
-        return result.MTConnectStreams;
-    } catch (error) {
-        throw error;
-    }
-}
+const accountRouter = require("./router/account");
+const helloworldRouter = require("./router/helloworld");
 
+server.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
 
-
-
-async function main(){
-    const response = await getData()
-    // console.log(response)
-    try {
-        const parsedXML = await parseXML(response)
-        const Header = parsedXML.Header
-        const DeviceStream = parsedXML.Streams[0]["DeviceStream"]
-        // console.log(Header)
-        // console.log(DeviceStream[0]['ComponentStream'][2]['Samples'])
-        
-        await storeData(parsedXML)
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-main()
-
+app.use("/account", accountRouter);
+app.use("/helloworld", helloworldRouter);
