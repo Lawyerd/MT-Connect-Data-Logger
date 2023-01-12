@@ -5,12 +5,114 @@ const schema = {
         sender:"DESKTOP-UJCH1N8",
         nextSequence:"11727"
     },
-    Streams:{
+    Device:{
         name:"Fanuc-30i-01",
-        DeviceStream:[
+        Components:[
             {
-                component
-            }
+                name:"Device",
+                Events:{
+                    asset_chg:"UNAVAILABLE",
+                    asset_rem:"UNAVAILABLE",
+                    avail:"AVAILABLE",
+                }
+            },
+            {
+                name:"Controller",
+                Events:{
+                    estop:"TRIGGERED",
+                    message:"UNAVILABLE"
+                },
+                Condition:{
+                    comms:"",
+                    logic:"",
+                    motion:"",
+                    servo:"",
+                    system:"",
+                }
+            },
+            {
+                name:"Path",
+                Samples:{
+                    // feed_commanded:"UNAVAILABLE",
+                    // feed_ovr:"UNAVAILABLE",
+                    path_feedrate:0,
+                    path_position:[95.5540000000, 42.9430000000, 281.3260000000]
+                },
+                Events:{
+                    active_axes:['X', 'Y', 'Z', 'C', 'B'],
+                    block:"<O0002.NC>",
+                    execution:"STOPPED",
+                    line:0,
+                    mode:"MANUAL",
+                    part_count:101,
+                    program:0.0,
+                    program_comment:"UNAVAILABLE",
+                    tool_id:20
+                }
+            },
+            {
+                name:"Rotary_A",
+                Samples:{
+                    Aact:"UNAVAILABLE",
+                    Aload:"UNAVAILABLE",
+                },
+                Events:{
+                    arotarymode:"INDEX"
+                },
+                Condition:{
+
+                }
+            },
+            {
+                name:"Rotary_C",
+                Samples:{
+                    S1load:0,
+                    S1speed:0,
+                    SspeedOvr:100
+                },
+                Events:{
+                    crotarymode:"SPINDLE"
+                },
+                Condition:{
+                    S1servo:""
+                }
+            },
+            {
+                name:"Linear_X",
+                Samples:{
+                    Xact:95.531,
+                    Xload:3,
+                },
+                Condition:{
+                    Xoverheat:"",
+                    Xservo:"",
+                    Xtravel:"",
+                }
+            },
+            {
+                name:"Linear_Y",
+                Samples:{
+                    Yact:42.872,
+                    Yload:2,
+                },
+                Condition:{
+                    Yoverheat:"",
+                    Yservo:"",
+                    Ytravel:"",
+                }
+            },
+            {
+                name:"Linear_Z",
+                Samples:{
+                    Zact:-29.467,
+                    Zload:52,
+                },
+                Condition:{
+                    Yoverheat:"",
+                    Yservo:"",
+                    Ytravel:"",
+                }
+            },
         ]
     }
 }

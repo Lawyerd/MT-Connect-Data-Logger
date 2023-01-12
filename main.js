@@ -1,7 +1,7 @@
 const axios = require('axios')
 const xml2js = require('xml2js')
 const mongoose = require('mongoose');
-// const {storeData} = require('./storeData')
+const {filterObject} = require('./filterObject')
 const AGENT_URL = 'http://192.168.10.120:5000/current'
 const MONGODB_URI = 'mongodb+srv://junseok:jim1292@cluster0.vrtl2.mongodb.net/CNC_Monitoring'
 mongoose.set('strictQuery', true);
@@ -31,7 +31,6 @@ async function parseXML(xml) {
                 }
             });
         });
-        delete result.MTConnectStreams['$']
         return result.MTConnectStreams;
     } catch (error) {
         throw error;
@@ -62,27 +61,12 @@ async function main() {
             const response = await getData()
             try {
                 const parsedXML = await parseXML(response)
-                const Header = parsedXML.Header[0]['$']
-
-                const creationTime = Header.creationTime
-                const lastSequence = Header.lastSequence
-                const _id = creationTime + '-' + Header.instanceId + lastSequence
-                console.log(_id)
-
-                const data = parsedXML
-
-                const deviceNumber = data["Streams"][0]['DeviceStream'].length
+                const filterdDevices = filterObject(parsedXML)
+                const deviceNumber = filterdDevices.length
                 for (let i = 0; i < deviceNumber; i++) {
-                    const device = data["Streams"][0]['DeviceStream'][i]
-                    const deviceName = device['$']['name']
-                    const deviceAvailability = device.ComponentStream[0].Events[0].Availability[0]['_']
-                    console.log(deviceName, deviceAvailability)
-                    if (deviceAvailability == 'UNAVAILABLE') {
-                        continue;
-                    }
-                    const COLLECTION_NAME = deviceName
+                    const COLLECTION_NAME = filterdDevices[i]['Device']['name']
                     const deviceModel = mongoose.model(COLLECTION_NAME, deviceSchema);
-                    const storedData = new deviceModel({ _id: _id, creationTime: creationTime, lastSequence: lastSequence, Device: device });
+                    const storedData = new deviceModel(filterdDevices[i]);
 
                     await storedData.save((error) => {
                         if (error) {
@@ -96,7 +80,7 @@ async function main() {
         } catch (error) {
             console.log(error);
         }
-    }, 2000);
+    }, 1000);
 
 }
 
