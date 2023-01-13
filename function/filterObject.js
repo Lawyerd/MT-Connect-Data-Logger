@@ -5,10 +5,12 @@ exports.filterObject = function filterObject(data) {
     const Header = data.Header[0]['$']
     const Devices = data.Streams[0].DeviceStream
     const devicesNumber = Devices.length
-
     const creationTime = Header.creationTime
     const lastSequence = Header.lastSequence
-    const _id = creationTime + '-' + Header.instanceId + lastSequence
+    const instanceId = Header.instanceId
+    const saveTime = new Date()
+    let state = "OFF"
+    const _id = Date.now() + '-' + lastSequence
 
     for (let i = 0; i < devicesNumber; i++) {
         let filterdObject = {}
@@ -16,10 +18,17 @@ exports.filterObject = function filterObject(data) {
         filterdObject._id = _id
         filterdObject.creationTime = creationTime
         filterdObject.lastSequence = lastSequence
+        filterdObject.saveTime = saveTime
+        filterdObject.state = state
+        filterdObject.instanceId = instanceId
 
         const Device = Devices[i]
         const deviceAvailability = Device.ComponentStream[0].Events[0].Availability[0]['_']
-        if (deviceAvailability != 'AVAILABLE') continue
+        if (deviceAvailability != 'AVAILABLE') {
+            filterdObject.state = "OFF"
+            result.push(filterdObject)
+            continue;
+        }
 
         filterdObject.Device = {}
         filterdObject.Device.name = Device["$"].name
@@ -75,7 +84,8 @@ exports.filterObject = function filterObject(data) {
         const componentPathSamplesPathPosition = componentPath['Samples'][0]['PathPosition'].find(element => element['$']['name'] == 'path_position')
         const componentPathEvents = componentPath['Events'][0]
         // const componentPathEventPathPosition= componentPath['Samples'][0]['PathPosition'].find(element => element['$']['name']=='path_position')
-
+        
+        filterdObject.state = componentPathEvents['Execution'][0]['_']
 
         const newComponentPath = {
             name: componentPath['$']['component'],
@@ -98,6 +108,7 @@ exports.filterObject = function filterObject(data) {
             }
 
         }
+
 
         // Condition이 Device의 Rotary_A 사용 유무에 따라 Normal과 Unavailable 두 가지 경우로 나눠지고, 쓸만한 데이터가 아닌 것 같아 제외 
         // const componentRotary_AConditionAoverheat= componentRotary_A['Condition'][0]['Normal'].find(element => element['$']['name']=='Aoverheat')

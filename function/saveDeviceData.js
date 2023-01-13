@@ -4,21 +4,23 @@ mongoose.set('strictQuery', true);
 const deviceSchema = new mongoose.Schema({
     _id: String,
     creationTime: String,
+    saveTime:Date,
     lastSequence: String,
+    state:String,
+    instanceId:String,
     Device: Object
 });
 
-exports.saveDeviceData = async function saveDeviceData(devices) {
-    const deviceNumber = devices.length
+exports.saveDeviceData = async function saveDeviceData(device) {
 
-    for (let i = 0; i < deviceNumber; i++) {
-        const COLLECTION_NAME = devices[i]['Device']['name']
+        if(device.state =="OFF") return;
+        const COLLECTION_NAME = device['Device']['name']
         const deviceModel = mongoose.model(COLLECTION_NAME, deviceSchema);
-        const storedData = new deviceModel(devices[i]);
+        const storedData = new deviceModel(device);
         await storedData.save((error) => {
             if (error) {
                 throw (error)
             }
         });
-    }
+    
 }
