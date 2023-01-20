@@ -30,9 +30,11 @@ async function main() {
     const filterdDevices = filterObject(parsedXML)
 
     for(let i =0; i<deviceStateChecker.length; i++){
-        // console.log("Device Name: "+deviceStateChecker[i].device+",   Last state: "+deviceStateChecker[i].state+",   Current State: "+filterdDevices[i].state)
+        console.log("Device Name: "+deviceStateChecker[i].device+",   Last state: "+deviceStateChecker[i].state+",   Current State: "+filterdDevices[i].state)
 
         if(filterdDevices[i].state =="STOPPED" && deviceStateChecker[i].state =="STOPPED") {
+            continue
+        }else if(filterdDevices[i].state =="OFF" && deviceStateChecker[i].state =="OFF"){
             continue
         }else {
             await saveDeviceData(filterdDevices[i])

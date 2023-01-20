@@ -13,7 +13,7 @@ const deviceSchema = new mongoose.Schema({
 
 exports.saveDeviceData = async function saveDeviceData(device) {
 
-        if(device.state =="OFF") return;
+        // if(device.state =="OFF") return;
         const COLLECTION_NAME = device['Device']['name']
         const deviceModel = mongoose.model(COLLECTION_NAME, deviceSchema);
         const storedData = new deviceModel(device);

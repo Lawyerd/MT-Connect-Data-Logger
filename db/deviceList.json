@@ -1,12 +1,12 @@
 {
     "deviceLists": [
         {
-            "adpater": "Fanuc-30id-01",
+            "adpater": "Fanuc-30i-01",
             "device": "DVF-5000",
             "state": "INIT"
         },
         {
-            "adpater": "Fanuc-30id-02",
+            "adpater": "Fanuc-30i-02",
             "device": "DVF-6500",
             "state": "INIT"
         },
@@ -18,6 +18,11 @@
         {
             "adpater": "Fanuc-0id-02",
             "device": "PUMA4100M",
+            "state": "INIT"
+        },
+        {
+            "adpater": "Fanuc-0id-03",
+            "device": "35",
             "state": "INIT"
         }
     ]

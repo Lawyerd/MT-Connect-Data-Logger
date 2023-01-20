@@ -26,6 +26,8 @@ exports.filterObject = function filterObject(data) {
         const deviceAvailability = Device.ComponentStream[0].Events[0].Availability[0]['_']
         if (deviceAvailability != 'AVAILABLE') {
             filterdObject.state = "OFF"
+            filterdObject.Device = {}
+            filterdObject.Device.name = Device["$"].name
             result.push(filterdObject)
             continue;
         }

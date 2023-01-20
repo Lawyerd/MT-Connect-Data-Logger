@@ -1,14 +1,10 @@
-const axios = require('axios')
-
-
 exports.getData = async function getData(URL) {
-    const response = await axios({
-        url: URL,
-        method: 'get',
+    const response = await fetch(URL, {
+        method: 'GET',
         headers: {
             'Accept': 'application/xml'
         }
     });
-    
-    return (response.data)
+
+    return response.text();
 }
