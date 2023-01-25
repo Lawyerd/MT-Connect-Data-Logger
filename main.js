@@ -22,6 +22,7 @@ async function main() {
     await connect()
     console.log('connected!')
     let deviceStateChecker = deviceStore.deviceLists
+    let deviceStartTimeChecker = new Array(deviceStateChecker.length).fill(0)
     console.log(deviceStateChecker)
     setInterval(async () => {
     // try {
@@ -31,12 +32,21 @@ async function main() {
 
     for(let i =0; i<deviceStateChecker.length; i++){
         console.log("Device Name: "+deviceStateChecker[i].device+",   Last state: "+deviceStateChecker[i].state+",   Current State: "+filterdDevices[i].state)
-
+        if(deviceStateChecker[i].state !="ACTIVE" && filterdDevices[i].state == "ACTIVE"){
+            deviceStartTimeChecker[i] = filterdDevices[i].saveTime
+        }
+        
         if(filterdDevices[i].state =="STOPPED" && deviceStateChecker[i].state =="STOPPED") {
             continue
         }else if(filterdDevices[i].state =="OFF" && deviceStateChecker[i].state =="OFF"){
             continue
-        }else {
+        }else if(filterdDevices[i].state =="ACTIVE" && deviceStateChecker[i].state !="ACTIVE"){
+            filterdDevices[i].runningTime = filterdDevices[i].saveTime - deviceStartTimeChecker[i]
+            await saveDeviceData(filterdDevices[i])
+            deviceStateChecker[i].state = filterdDevices[i].state
+        }
+        else {
+            filterdDevices[i].runningTime = 0
             await saveDeviceData(filterdDevices[i])
             deviceStateChecker[i].state = filterdDevices[i].state
         }
