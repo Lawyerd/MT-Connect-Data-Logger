@@ -1,10 +1,10 @@
-exports.filterObject = function filterObject(data) {
+exports.filterObject = function filterObject(data, deviceInfo) {
     let result = []
 
     // console.log(data)
     const Header = data.Header[0]['$']
     const Devices = data.Streams[0].DeviceStream
-    const devicesNumber = Devices.length
+    const devicesNumber = deviceInfo.length
     const creationTime = Header.creationTime
     const lastSequence = Header.lastSequence
     const instanceId = Header.instanceId
@@ -22,7 +22,9 @@ exports.filterObject = function filterObject(data) {
         filterdObject.state = state
         filterdObject.instanceId = instanceId
 
-        const Device = Devices[i]
+        const Device = Devices.find(device => device["$"].name === deviceInfo[i].adapter);
+        filterdObject.deviceName = deviceInfo[i].device
+
         const deviceAvailability = Device.ComponentStream[0].Events[0].Availability[0]['_']
         if (deviceAvailability != 'AVAILABLE') {
             filterdObject.state = "OFF"

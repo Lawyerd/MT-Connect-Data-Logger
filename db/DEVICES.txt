@@ -1,17 +1,17 @@
-{
+[
     {
-    adapter: "Fanuc-30i-01",
-    device: "DVF-5000",
-    host:"192.168.10.109"
+    "adapter": "Fanuc-30i-01",
+    "device": "DVF-5000",
+    "host":"192.168.10.109"
     },
     {
-    adapter: "Fanuc-30i-02",
-    device: "DVF-6500",
-    host:"192.168.10.108"
+    "adapter": "Fanuc-30i-02",
+    "device": "DVF-6500",
+    "host":"192.168.10.108"
     },
     {
-    adapter: "Fanuc-0id-03",
-    device: "DVF-5000",
-    host:"192.168.10.110"
-    },
-}
+    "adapter": "Fanuc-0id-03",
+    "device": "Unit-35",
+    "host":"192.168.10.110"
+    }
+]
