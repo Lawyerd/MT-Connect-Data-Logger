@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
-const express = require('express')
 const { getData } = require('./function/getData')
 const { parseXML } = require('./function/parseXML')
 const { filterObject } = require('./function/filterObject')
 const { saveDeviceData } = require('./function/saveDeviceData');
 const { getDevices } = require('./function/getDevices');
 const AGENT_URL = 'http://192.168.10.120:5000/current'
-const MONGODB_URI = 'mongodb+srv://junseok:jim1292@cluster0.vrtl2.mongodb.net/CNC_Monitoring'
+const {MONGODB_URI} = require('./db/mongoPassword')
 
 let connection = null;
 const connect = () => {
