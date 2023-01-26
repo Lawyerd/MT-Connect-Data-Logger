@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 mongoose.set('strictQuery', true);
 
 const deviceSchema = new mongoose.Schema({
@@ -13,15 +14,14 @@ const deviceSchema = new mongoose.Schema({
     Device: Object
 });
 
-exports.saveDeviceData = async function saveDeviceData(device) {
 
-        const COLLECTION_NAME = device['deviceName']
-        const deviceModel = mongoose.model(COLLECTION_NAME, deviceSchema);
-        const storedData = new deviceModel(device);
-        await storedData.save((error) => {
-            if (error) {
-                throw (error)
-            }
-        });
-    
+exports.saveDeviceData = async function saveDeviceData(device) {
+    const COLLECTION_NAME = device['deviceName']
+    const DeviceModel = mongoose.model(COLLECTION_NAME, deviceSchema);
+    const deviceModel = new DeviceModel(device);
+    try {
+        await deviceModel.save();
+    } catch (error) {
+        throw error;
+    }
 }

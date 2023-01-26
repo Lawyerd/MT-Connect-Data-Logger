@@ -37,7 +37,7 @@ exports.filterObject = function filterObject(data, deviceInfo) {
         filterdObject.Device = {}
         filterdObject.Device.name = Device["$"].name
 
-        filterdObject.Device.Components = []
+        filterdObject.Device.Components = {}
         // result.Device.Components[0] = 
 
         const componentDevice = Device.ComponentStream.find(component => component['$']['component'] == 'Device')
@@ -51,7 +51,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
 
 
         const newComponentDevice = {
-            name: componentDevice['$']['component'],
             Events: {
                 asset_chg: componentDevice['Events'][0]['AssetChanged'][0]['_'],
                 asset_rem: componentDevice['Events'][0]['AssetRemoved'][0]['_'],
@@ -68,7 +67,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
 
 
         const newComponentController = {
-            name: componentController['$']['component'],
             Events: {
                 estop: componentController['Events'][0]['EmergencyStop'][0]['_'],
                 message: componentController['Events'][0]['Message'][0]['_']
@@ -92,7 +90,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
         filterdObject.state = componentPathEvents['Execution'][0]['_']
 
         const newComponentPath = {
-            name: componentPath['$']['component'],
             Samples: {
                 // feed_commanded:"UNAVAILABLE",
                 // feed_ovr:"UNAVAILABLE",
@@ -120,7 +117,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
         // const componentRotary_AConditionAtravel= componentRotary_A['Condition'][0]['Normal'].find(element => element['$']['name']=='Atravel')
 
         const newComponentRotary_A = {
-            name: componentRotary_A['$']['component'] + '_' + componentRotary_A['$']['name'],
             Samples: {
                 Aact: Number(componentRotary_A['Samples'][0]['Angle'][0]['_']),
                 Aload: Number(componentRotary_A['Samples'][0]['Load'][0]['_']),
@@ -139,7 +135,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
 
 
         const newComponentRotary_C = {
-            name: componentRotary_C['$']['component'] + '_' + componentRotary_C['$']['name'],
             Samples: {
                 S1load: Number(componentRotary_C['Samples'][0]['Load'][0]['_']),
                 S1speed: Number(componentRotary_C['Samples'][0]['RotaryVelocity'][0]['_']),
@@ -159,7 +154,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
 
 
         const newComponentLinear_X = {
-            name: componentLinear_X['$']['component'] + '_' + componentLinear_X['$']['name'],
             Samples:{
                 Xact:Number(componentLinear_X['Samples'][0]['Position'][0]['_']),
                 Xload:Number(componentLinear_X['Samples'][0]['Load'][0]['_']),
@@ -177,7 +171,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
 
 
         const newComponentLinear_Y = {
-            name: componentLinear_Y['$']['component'] + '_' + componentLinear_Y['$']['name'],
             Samples:{
                 Yact:Number(componentLinear_Y['Samples'][0]['Position'][0]['_']),
                 Yload:Number(componentLinear_Y['Samples'][0]['Load'][0]['_']),
@@ -195,7 +188,6 @@ exports.filterObject = function filterObject(data, deviceInfo) {
 
 
         const newComponentLinear_Z = {
-            name: componentLinear_Z['$']['component'] + '_' + componentLinear_Z['$']['name'],
             Samples:{
                 Zact:Number(componentLinear_Z['Samples'][0]['Position'][0]['_']),
                 Zload:Number(componentLinear_Z['Samples'][0]['Load'][0]['_']),
@@ -207,7 +199,14 @@ exports.filterObject = function filterObject(data, deviceInfo) {
             }
         }
 
-        filterdObject.Device.Components = [newComponentDevice,newComponentController,newComponentPath,newComponentRotary_A,newComponentRotary_C, newComponentLinear_X,newComponentLinear_Y,newComponentLinear_Z]
+        filterdObject.Device.Components.deviceInfo = newComponentDevice
+        filterdObject.Device.Components.controller = newComponentController
+        filterdObject.Device.Components.path = newComponentPath
+        filterdObject.Device.Components.rotary_A = newComponentRotary_A
+        filterdObject.Device.Components.rotary_C = newComponentRotary_C
+        filterdObject.Device.Components.linear_X = newComponentLinear_X
+        filterdObject.Device.Components.linear_Y = newComponentLinear_Y
+        filterdObject.Device.Components.linear_Z = newComponentLinear_Z
         result.push(filterdObject)
     }
     return result
