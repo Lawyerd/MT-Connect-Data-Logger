@@ -10,22 +10,34 @@
 //     });
 // }
 
-const axios = require('axios')
-const URL = 'https://0zd9p9qiuf.execute-api.ap-northeast-2.amazonaws.com/default/NotionReader?plantNumber='
-exports.getDevices = async function getDevices(plantNumber) {
-    return axios.get(URL + String(plantNumber))
-        .then((response) => {
-            const results = response.data.results;
-            const filterdResult = filterMachinelist(results)
-            return (filterdResult)
-        })
-        .catch((error) => {
-            console.error(error);
-            throw error;
+const https = require('https');
+exports.getDevices = function getDevices(plantNumber) {
+    return new Promise((resolve, reject) => {
+      const URL = 'https://0zd9p9qiuf.execute-api.ap-northeast-2.amazonaws.com/default/NotionReader?plantNumber=';
+      https.get(URL + String(plantNumber), (res) => {
+        let data = '';
+  
+        res.on('data', (chunk) => {
+          data += chunk;
         });
-};
-
+  
+        res.on('end', () => {
+          try {
+            const responseData = JSON.parse(data);
+            const results = responseData.results;
+            const filteredResult = filterMachinelist(results);
+            resolve(filteredResult);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      }).on('error', (err) => {
+        reject(err);
+      });
+    });
+  };
 const filterMachinelist = (rawArray) => {
+    console.log(rawArray)
     let machineList = Array(rawArray.length)
     for (let i = 0; i < rawArray.length; i++) {
         let machine = {}
