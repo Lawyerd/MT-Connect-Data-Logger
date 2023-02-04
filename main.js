@@ -17,7 +17,7 @@ const connect = async () => {
 async function main() {
     await connect();
     console.log('connected!');
-    const devices = await getDevices();
+    const devices = await getDevices("");
     const deviceStateChecker = new Array(devices.length).fill('INIT');
     const deviceStartTimeChecker = new Array(devices.length).fill(0);
 
@@ -25,15 +25,17 @@ async function main() {
         const result = await getData(AGENT_URL);
         const parsedXML = await parseXML(result);
         const filteredDevices = filterObject(parsedXML, devices);
-
-        for (let i = 0; i < devices.length; i++) {
+        for (let i = 0; i < filteredDevices.length; i++) {
             console.log(`CurrentTime: ${filteredDevices[i].saveTime}, Device Name: ${filteredDevices[i].deviceName},   Last state: ${deviceStateChecker[i]},   Current State: ${filteredDevices[i].state}`);
             if (deviceStateChecker[i] !== 'ACTIVE' && filteredDevices[i].state === 'ACTIVE') {
                 deviceStartTimeChecker[i] = filteredDevices[i].saveTime;
             }
+
             if (filteredDevices[i].state === 'STOPPED' && deviceStateChecker[i] === 'STOPPED') {
                 continue;
             } else if (filteredDevices[i].state === 'OFF' && deviceStateChecker[i] === 'OFF') {
+                continue;
+            } else if (filteredDevices[i].state === 'INTERRUPTED' && deviceStateChecker[i] === 'INTERRUPTED') {
                 continue;
             } else if (filteredDevices[i].state === 'ACTIVE' && deviceStateChecker[i] === 'ACTIVE') {
                 filteredDevices[i].runningTime = filteredDevices[i].saveTime - deviceStartTimeChecker[i];

@@ -2,7 +2,7 @@ const {getData} = require("./function/getData")
 const {parseXML} = require("./function/parseXML")
 const { filterObject } = require('./function/filterObject')
 // process.env.TXT_FILE_PATH = 'path/to/file/txt'
-const {readFile} = require("./function/getDevices")
+const {getDevices} = require("./function/getDevices")
 
 const AGENT_URL = 'http://192.168.10.120:5000/current'
 
@@ -13,6 +13,6 @@ async function main(){
     // const filterdDevices = filterObject(parsedXML)
     // console.log(filterdDevices)
     // console.log(TXT_FILE_PATH)
-    readFile()
+    console.log(a)
 }
 main()
