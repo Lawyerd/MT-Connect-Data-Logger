@@ -1,0 +1,14 @@
+[
+    {
+    "adapter": "Fanuc-30i-01",
+    "name": "PUMA-700LM",
+    "host":"192.168.10.17",
+    "slack_channel": "C04V2FN165V"
+    },
+    {
+    "adapter": "Fanuc-0id-01",
+    "name": "PUMA-4100M",
+    "host":"192.168.10.18",
+    "slack_channel": "C04V2FKTY5V"
+    }
+]

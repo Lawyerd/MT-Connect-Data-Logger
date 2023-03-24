@@ -1,7 +1,6 @@
 exports.filterObject = function filterObject(data, deviceInfo) {
     let result = []
 
-    // console.log(data)
     const Header = data.Header[0]['$']
     const Devices = data.Streams[0].DeviceStream
     const devicesNumber = deviceInfo.length
@@ -164,9 +163,9 @@ exports.filterObject = function filterObject(data, deviceInfo) {
                 }
             }
 
-            const componentLinear_YConditionYoverheat = componentLinear_Y['Condition'][0]['Normal'].find(element => element['$']['name'] == 'Yoverheat')
-            const componentLinear_YConditionYservo = componentLinear_Y['Condition'][0]['Normal'].find(element => element['$']['name'] == 'Yservo')
-            const componentLinear_YConditionYtravel = componentLinear_Y['Condition'][0]['Normal'].find(element => element['$']['name'] == 'Ytravel')
+            // const componentLinear_YConditionYoverheat = componentLinear_Y['Condition'][0]['Normal'].find(element => element['$']['name'] == 'Yoverheat')
+            // const componentLinear_YConditionYservo = componentLinear_Y['Condition'][0]['Normal'].find(element => element['$']['name'] == 'Yservo')
+            // const componentLinear_YConditionYtravel = componentLinear_Y['Condition'][0]['Normal'].find(element => element['$']['name'] == 'Ytravel')
 
 
             const newComponentLinear_Y = {
@@ -208,8 +207,11 @@ exports.filterObject = function filterObject(data, deviceInfo) {
             filterdObject.Device.Components.linear_Z = newComponentLinear_Z
             result.push(filterdObject)
         } catch (error) {
+            console.log('\x1b[31m%s\x1b[0m', 'ERROR')
+            // console.log(error)
             continue
         }
+
 
     }
     return result
