@@ -1,4 +1,4 @@
-exports.determineAction = function determineAction(currentState, previousState) {
+exports.determineAction = (currentState, previousState) => {
     let shouldSave = false;
     let isStart = false;
     let isRunning = false;

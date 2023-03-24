@@ -1,4 +1,4 @@
-const generateMessage = (deviceName, previousState, currentState, partCount, cycleTime, currentBlock) => {
+const getDesignedMessage = (deviceName, previousState, currentState, partCount, cycleTime, currentBlock) => {
     let message = `[${deviceName}]가 '${previousState}' 상태에서 '${currentState}' 상태로 변경되었습니다.`
     let blocks = [
         {
@@ -58,10 +58,10 @@ const getFormattedTime = (milliseconds) => {
 
 
 
-exports.postMessage = async function postMessage(slackBot, channel, deviceName, previousState, currentState, partCount, cycleTime, currentBlock) {
+exports.postMessage = async (slackBot, channel, deviceName, previousState, currentState, partCount, cycleTime, currentBlock) => {
 
     console.log(`Send message to ${deviceName} ${previousState} > ${currentState}`)
-    const [message, blocks] = generateMessage(deviceName, previousState, currentState, partCount, getFormattedTime(cycleTime), currentBlock)
+    const [message, blocks] = getDesignedMessage(deviceName, previousState, currentState, partCount, getFormattedTime(cycleTime), currentBlock)
 
     try {
         await slackBot.chat.postMessage({
@@ -70,7 +70,9 @@ exports.postMessage = async function postMessage(slackBot, channel, deviceName, 
             blocks: blocks
         })
     } catch (err) {
-        console.log(err.message)
+        console.error(chalk`{red [Error]} ${error}`);
+
+
     }
 
 }   

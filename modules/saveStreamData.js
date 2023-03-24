@@ -15,13 +15,15 @@ const deviceSchema = new mongoose.Schema({
 });
 
 
-exports.saveDeviceData = async function saveDeviceData(device) {
-    const COLLECTION_NAME = device['deviceName']
+exports.saveStreamData = async (streamData) => {
+    const COLLECTION_NAME = streamData['deviceName']
     const DeviceModel = mongoose.model(COLLECTION_NAME, deviceSchema);
-    const deviceModel = new DeviceModel(device);
+    const deviceModel = new DeviceModel(streamData);
     try {
         await deviceModel.save();
     } catch (error) {
+        console.error(chalk`{red [Error]} ${error}`);
+
         throw error;
     }
 }

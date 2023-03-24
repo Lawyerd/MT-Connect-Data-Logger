@@ -1,6 +1,6 @@
 const xml2js = require('xml2js')
 
-exports.getData = async function getData(URL) {
+exports.getStreamData = async (URL) => {
     const response = await fetch(URL, {
         method: 'GET',
         headers: {
@@ -16,9 +16,10 @@ exports.getData = async function getData(URL) {
 async function parseXML(xml) {
     try {
         const result = await new Promise((resolve, reject) => {
-            xml2js.parseString(xml, (err, result) => {
-                if (err) {
-                    reject(err);
+            xml2js.parseString(xml, (error, result) => {
+                if (error) {
+                    console.error(chalk`{red [Error]} ${error}`);
+                    reject(error);
                 } else {
                     resolve(result);
                 }

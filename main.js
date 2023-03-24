@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
-const { getData } = require('./function/getData');
-const { filterObject } = require('./function/filterObject');
-const { saveDeviceData } = require('./function/saveDeviceData');
-const { readMachineList } = require('./function/readMachineList');
-const { determineAction } = require('./function/determineAction')
-const { postMessage } = require('./function/postMessage')
-const AGENT_URL = require('./db/config').AGENT_URL;
-const mongoPassword = require('./db/config').mongoPassword;
-const INTERVAL_TIME = 500
-
-const slackToken = require('./db/config').slackToken;
+const cron = require('node-cron')
+const { getStreamData } = require('./modules/getStreamData');
+const { filterObject } = require('./modules/filterObject');
+const { saveStreamData } = require('./modules/saveStreamData');
+const { readMachineList } = require('./modules/readMachineList');
+const { determineAction } = require('./modules/determineAction')
+const { postMessage } = require('./modules/postMessage')
+const { agentUrl, mongoPassword, slackToken } = require('./db/config');
 const { WebClient } = require('@slack/web-api')
 const slackBot = new WebClient(slackToken)
+const chalk = require('chalk');
+const intervalTime = 1
 
 
-let connection = null;
+
 const connect = async () => {
+    let connection = null;
     if (connection && mongoose.connection.readyState === 1) return connection;
     connection = await mongoose.connect(mongoPassword, { useNewUrlParser: true });
     return connection;
@@ -24,73 +24,81 @@ const connect = async () => {
 async function main() {
     // Connect with MongoDB
     await connect();
-    console.log('\x1b[36m%s\x1b[0m', '\nMongoDB connected');
+    console.log(chalk`{greenBright.italic MongoDB} connected`);
 
-    // Get deviceList from AWS Lambda function
+    // Get deviceList from 'Machines.txt' file
     const devices = await readMachineList();
-    console.log('\x1b[36m%s\x1b[0m', '\nGet Device from AWS Lambda');
-    console.log('\x1b[32m%s\x1b[0m', '[Device List]')
+    console.log()
+    console.log(chalk`Read Device List from {greenBright.italic 'Machines.txt'}`);
+    console.log()
+    console.log(chalk`{greenBright [Device List]}`)
     for (let device of devices) {
-        console.log(`- ${device.name}`)
+        console.log(chalk`{greenBright •} ${device.name}`)
     }
 
     // Create a 'checker' to detect for changes in the device's state
     const deviceStateChecker = new Array(devices.length).fill('INIT');
     const deviceStartTimeChecker = new Array(devices.length).fill(0);
 
-    // Reads CNC data from the device every 'INTERVAL_TIME'
-    setInterval(async () => {
-        // Reads data from devices currently connected to the PC
-        const result = await getData(AGENT_URL);
+    // Reads CNC data from the device every 'intervalTime'
+    console.log()
+    console.log(chalk`Get Stream Data every {greenBright.bold ${intervalTime}} second`);
+    console.log()
+    cron.schedule(`*/${intervalTime} * * * * *`, async () => {
+        try {
+            // Reads data from devices currently connected to the PC
+            const result = await getStreamData(agentUrl);
 
-        // Filter read data by device
-        const filteredDevices = filterObject(result, devices);
+            // Filter read data by device
+            const filteredDevices = filterObject(result, devices);
 
-        for (let i in filteredDevices) {
-            let previousState = deviceStateChecker[i];
-            let currentState = filteredDevices[i].state;
+            for (let i in filteredDevices) {
+                let streamData = filteredDevices[i]
+                let previousState = deviceStateChecker[i];
+                let currentState = filteredDevices[i].state;
 
-            console.log(`${filteredDevices[i].deviceName}   ${deviceStateChecker[i]} -> ${filteredDevices[i].state}`);
-            const [shouldSave, isStart, isRunning, shouldPostMessage] = determineAction(currentState, previousState)
-            if (isStart) {
-                deviceStartTimeChecker[i] = filteredDevices[i].saveTime;
-                console.log('\x1b[34m%s\x1b[0m', 'Machine Start')
-            }
-
-            if (isRunning) {
-                filteredDevices[i].runningTime = filteredDevices[i].saveTime - deviceStartTimeChecker[i];
-                console.log('\x1b[34m%s\x1b[0m', 'Running...')
-            }else{
-                filteredDevices[i].runningTime = 0;
-            }
-
-            if (shouldSave) {
-                console.log('\x1b[34m%s\x1b[0m', 'Save Data')
-                await saveDeviceData(filteredDevices[i]);
-            }
-
-            if (shouldPostMessage) {
-                const targetDevice = filteredDevices[i].deviceName
-                const targetChannel = devices.find(device => {
-                    return targetDevice === device.name
-                }).slack_channel;
-
-                if (targetChannel) {
-                    console.log('\x1b[34m%s\x1b[0m', `Post Message on Channel for [${targetDevice}]`)
-                    // console.log(filteredDevices[i])
-                    if(filteredDevices[i].Device.Components){
-                        await postMessage(slackBot, targetChannel, targetDevice, previousState, currentState, filteredDevices[i].Device.Components.path.Events.part_count, filteredDevices[i].runningTime, filteredDevices[i].Device.Components.path.Events.block)
-                    }else{
-                        console.log('\x1b[31m%s\x1b[0m', `ERROR: There is no 'Conponents' element in [${targetDevice}] Stream Data`)
-                    }
-                } else {
-                    console.log('\x1b[31m%s\x1b[0m', `ERROR: There is no Channel for [${targetDevice}]`)
+                // console.log(`${streamData.deviceName}   ${previousState} -> ${currentState}`);
+                const [shouldSave, isStart, isRunning, shouldPostMessage] = determineAction(currentState, previousState)
+                if (isStart) {
+                    deviceStartTimeChecker[i] = streamData.saveTime;
+                    console.log(chalk`{blue Machine Start}`)
                 }
-            }
 
-            deviceStateChecker[i] = currentState;
-        }
-    }, INTERVAL_TIME);
+                if (isRunning) {
+                    streamData.runningTime = streamData.saveTime - deviceStartTimeChecker[i];
+                    console.log(chalk`{blue Running}`)
+                } else {
+                    streamData.runningTime = 0;
+                }
+
+                if (shouldSave) {
+                    console.log(chalk`{blue Save Data}`)
+                    await saveStreamData(streamData);
+                }
+
+                if (shouldPostMessage) {
+                    const targetDevice = streamData.deviceName
+                    const targetChannel = devices.find(device => {
+                        return targetDevice === device.name
+                    }).slack_channel;
+
+                    if (targetChannel) {
+                        console.log(chalk`Post Message on Channel {blue [${targetDevice}]}`)
+                        // console.log(streamData)
+                        if (streamData.Device.Components) {
+                            await postMessage(slackBot, targetChannel, targetDevice, previousState, currentState, streamData.Device.Components.path.Events.part_count, streamData.runningTime, streamData.Device.Components.path.Events.block)
+                        } else {
+                            console.log(chalk`{red [Error]} There is no 'Conponents' element in [${targetDevice}] Stream Data`)
+                        }
+                    } else {
+                        console.log(chalk`{red [Error]} There is no Channel for [${targetDevice}]`)
+                    }
+                }
+                deviceStateChecker[i] = currentState;
+            }
+        } catch (error) {
+            console.error(chalk`{red [Error]} ${error}`);
+        }});
 }
 
 main();

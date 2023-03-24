@@ -1,4 +1,4 @@
-exports.filterObject = function filterObject(data, deviceInfo) {
+exports.filterObject = (data, deviceInfo) => {
     let result = []
 
     const Header = data.Header[0]['$']
@@ -207,7 +207,7 @@ exports.filterObject = function filterObject(data, deviceInfo) {
             filterdObject.Device.Components.linear_Z = newComponentLinear_Z
             result.push(filterdObject)
         } catch (error) {
-            console.log('\x1b[31m%s\x1b[0m', 'ERROR')
+            console.error(chalk`{red [Error]} ${error}`);
             // console.log(error)
             continue
         }
