@@ -44,8 +44,7 @@ module.exports = {
 ]
 ...
 ```
-- name: The name of the device (e.g. "CNC Machine 1")
-- device_uuid: The UUID of the device (e.g. "00000000-0000-0000-0000-000000000001")
+- name: The name of the device (e.g. "CNC Machine 1")\
 - slack_channel: The name of the Slack channel to send messages to when events occur (e.g. "#cnc-machine-1")
 ## Usage
 
