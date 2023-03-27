@@ -10,7 +10,7 @@ const { postMessage } = require('./modules/postMessage')
 const { agentUrl, mongoPassword, slackToken } = require('./db/config');
 const { WebClient } = require('@slack/web-api')
 const slackBot = new WebClient(slackToken)
-const intervalTime = 0.1
+const intervalTime = 1
 
 
 
@@ -56,8 +56,14 @@ async function main() {
                 let streamData = filteredDevices[i]
                 let previousState = deviceStateChecker[i];
                 let currentState = filteredDevices[i].state;
-                let currentBlock = streamData.Device.Components.path.Events.block || undefined
-                let partCount = streamData.Device.Components.path.Events.part_count || undefined
+                let currentBlock = "";
+                let partCount = 0
+                if(streamData.Device.Components){
+                    currentBlock = streamData.Device.Components.path.Events.block 
+                    partCount = streamData.Device.Components.path.Events.part_count 
+                }else{
+                
+                }
                 let targetDevice = streamData.deviceName
                 // Initialize runningTime
                 streamData.runningTime = 0
@@ -83,7 +89,6 @@ async function main() {
                     }).slack_channel;
 
                     if (targetChannel) {
-                        console.log(chalk`Post Message on Channel {green.bold [${targetDevice}]} {yellow [${previousState}] -> [${currentState}]}`)
                         if (streamData.Device.Components) {
                             await postMessage(slackBot, targetChannel, targetDevice, previousState, currentState, partCount, streamData.runningTime, currentBlock)
                         } else {
@@ -104,7 +109,8 @@ async function main() {
             }
         } catch (error) {
             console.error(chalk`{red [Error]} ${error}`);
-        }});
+        }
+    });
 }
 
 main();
