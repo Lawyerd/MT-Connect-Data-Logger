@@ -1,3 +1,6 @@
+const chalk = require('chalk');
+
+
 const getDesignedMessage = (deviceName, previousState, currentState, partCount, cycleTime, currentBlock) => {
     let message = `[${deviceName}]가 '${previousState}' 상태에서 '${currentState}' 상태로 변경되었습니다.`
     let blocks = [
@@ -59,8 +62,7 @@ const getFormattedTime = (milliseconds) => {
 
 
 exports.postMessage = async (slackBot, channel, deviceName, previousState, currentState, partCount, cycleTime, currentBlock) => {
-
-    console.log(`Send message to ${deviceName} ${previousState} > ${currentState}`)
+    console.log(chalk`{blue Post message at ${deviceName}} {yellow [${previousState}] -> [${currentState}]}`)
     const [message, blocks] = getDesignedMessage(deviceName, previousState, currentState, partCount, getFormattedTime(cycleTime), currentBlock)
 
     try {
@@ -69,7 +71,7 @@ exports.postMessage = async (slackBot, channel, deviceName, previousState, curre
             text: message,
             blocks: blocks
         })
-    } catch (err) {
+    } catch (error) {
         console.error(chalk`{red [Error]} ${error}`);
 
 

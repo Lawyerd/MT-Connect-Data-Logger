@@ -1,4 +1,5 @@
 const xml2js = require('xml2js')
+const chalk = require('chalk');
 
 exports.getStreamData = async (URL) => {
     const response = await fetch(URL, {

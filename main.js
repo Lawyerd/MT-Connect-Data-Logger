@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const cron = require('node-cron')
+const chalk = require('chalk');
 const { getStreamData } = require('./modules/getStreamData');
 const { filterObject } = require('./modules/filterObject');
 const { saveStreamData } = require('./modules/saveStreamData');
@@ -9,7 +10,6 @@ const { postMessage } = require('./modules/postMessage')
 const { agentUrl, mongoPassword, slackToken } = require('./db/config');
 const { WebClient } = require('@slack/web-api')
 const slackBot = new WebClient(slackToken)
-const chalk = require('chalk');
 const intervalTime = 1
 
 
@@ -56,6 +56,10 @@ async function main() {
                 let streamData = filteredDevices[i]
                 let previousState = deviceStateChecker[i];
                 let currentState = filteredDevices[i].state;
+                const targetDevice = streamData.deviceName
+
+                // Generate log message 
+                console.log(chalk`{bold ${targetDevice}: } {yellow [${previousState}] -> [${currentState}]}`)
 
                 // console.log(`${streamData.deviceName}   ${previousState} -> ${currentState}`);
                 const [shouldSave, isStart, isRunning, shouldPostMessage] = determineAction(currentState, previousState)
@@ -77,7 +81,7 @@ async function main() {
                 }
 
                 if (shouldPostMessage) {
-                    const targetDevice = streamData.deviceName
+                    
                     const targetChannel = devices.find(device => {
                         return targetDevice === device.name
                     }).slack_channel;

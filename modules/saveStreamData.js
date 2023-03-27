@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', true);

@@ -1,3 +1,5 @@
+const chalk = require('chalk');
+
 exports.filterObject = (data, deviceInfo) => {
     let result = []
 
