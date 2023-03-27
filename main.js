@@ -10,7 +10,7 @@ const { postMessage } = require('./modules/postMessage')
 const { agentUrl, mongoPassword, slackToken } = require('./db/config');
 const { WebClient } = require('@slack/web-api')
 const slackBot = new WebClient(slackToken)
-const intervalTime = 1
+const intervalTime = 0.1
 
 
 
@@ -56,41 +56,36 @@ async function main() {
                 let streamData = filteredDevices[i]
                 let previousState = deviceStateChecker[i];
                 let currentState = filteredDevices[i].state;
-                const targetDevice = streamData.deviceName
+                let currentBlock = streamData.Device.Components.path.Events.block || undefined
+                let partCount = streamData.Device.Components.path.Events.part_count || undefined
+                let targetDevice = streamData.deviceName
+                // Initialize runningTime
+                streamData.runningTime = 0
 
                 // Generate log message 
-                console.log(chalk`{bold ${targetDevice}: } {yellow [${previousState}] -> [${currentState}]}`)
+                // console.log(chalk`{bold ${targetDevice}: } {yellow [${previousState}] -> [${currentState}]}`)
 
-                // console.log(`${streamData.deviceName}   ${previousState} -> ${currentState}`);
-                const [shouldSave, isStart, isRunning, shouldPostMessage] = determineAction(currentState, previousState)
+                const [shouldSave, isStart, isRunning, isFinished, shouldPostMessage] = determineAction(currentState, previousState, currentBlock)
                 if (isStart) {
                     deviceStartTimeChecker[i] = streamData.saveTime;
-                    console.log(chalk`{blue Machine Start}`)
+                    console.log(chalk`Machine Start {green.bold [${targetDevice}]}`)
                 }
 
                 if (isRunning) {
                     streamData.runningTime = streamData.saveTime - deviceStartTimeChecker[i];
-                    console.log(chalk`{blue Running}`)
-                } else {
-                    streamData.runningTime = 0;
-                }
+                } 
 
-                if (shouldSave) {
-                    console.log(chalk`{blue Save Data}`)
-                    await saveStreamData(streamData);
-                }
-
+                
                 if (shouldPostMessage) {
-                    
+                    streamData.runningTime = streamData.saveTime - deviceStartTimeChecker[i];
                     const targetChannel = devices.find(device => {
                         return targetDevice === device.name
                     }).slack_channel;
 
                     if (targetChannel) {
-                        console.log(chalk`Post Message on Channel {blue [${targetDevice}]}`)
-                        // console.log(streamData)
+                        console.log(chalk`Post Message on Channel {green.bold [${targetDevice}]} {yellow [${previousState}] -> [${currentState}]}`)
                         if (streamData.Device.Components) {
-                            await postMessage(slackBot, targetChannel, targetDevice, previousState, currentState, streamData.Device.Components.path.Events.part_count, streamData.runningTime, streamData.Device.Components.path.Events.block)
+                            await postMessage(slackBot, targetChannel, targetDevice, previousState, currentState, partCount, streamData.runningTime, currentBlock)
                         } else {
                             console.log(chalk`{red [Error]} There is no 'Conponents' element in [${targetDevice}] Stream Data`)
                         }
@@ -98,7 +93,14 @@ async function main() {
                         console.log(chalk`{red [Error]} There is no Channel for [${targetDevice}]`)
                     }
                 }
+
+                if (shouldSave) {
+                    await saveStreamData(streamData);
+                }
                 deviceStateChecker[i] = currentState;
+                if(isFinished){
+                    streamData.runningTime = 0
+                }
             }
         } catch (error) {
             console.error(chalk`{red [Error]} ${error}`);

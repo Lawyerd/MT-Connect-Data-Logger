@@ -62,9 +62,8 @@ const getFormattedTime = (milliseconds) => {
 
 
 exports.postMessage = async (slackBot, channel, deviceName, previousState, currentState, partCount, cycleTime, currentBlock) => {
-    console.log(chalk`{blue Post message at ${deviceName}} {yellow [${previousState}] -> [${currentState}]}`)
     const [message, blocks] = getDesignedMessage(deviceName, previousState, currentState, partCount, getFormattedTime(cycleTime), currentBlock)
-
+    console.log(getFormattedTime(cycleTime))
     try {
         await slackBot.chat.postMessage({
             channel: channel,
@@ -73,8 +72,6 @@ exports.postMessage = async (slackBot, channel, deviceName, previousState, curre
         })
     } catch (error) {
         console.error(chalk`{red [Error]} ${error}`);
-
-
     }
 
 }   
